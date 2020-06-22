@@ -28,6 +28,18 @@ class ConfigModel extends Model {
         'company_id',
     ];
 
+    const IS_GLOBAL = [
+        'YES' => 1,
+        'NO' => 0,
+    ];
+
+    CONST TYPE = [
+        'JSON' => 'json',
+        'SEMICOMA' => 'semicoma',
+        'STRING' => 'string',
+        'STOP' => 'stop',
+        'URL' => 'url',
+    ];
 
 
 }

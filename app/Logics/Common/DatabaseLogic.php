@@ -1,6 +1,9 @@
 <?php
 namespace App\Logics\Common;
 
+use App\Constants\ErrorCode;
+use App\Exception\AdminResponseException;
+
 class DatabaseLogic{
 
     /**
@@ -37,13 +40,16 @@ class DatabaseLogic{
 
         $data = self::filterTableData($fields, $data);
 
-        if(auth()->guard('jwt')->check()){
+        //只有不存在company_id的时候才会覆盖
+        if(!isset($data['company_id']) && empty($data['company_id'])){
+            if(auth()->guard('jwt')->check()){
 
-            $user = auth()->guard('jwt')->user();
+                $user = auth()->guard('jwt')->user();
 
-            //多拼接一个所属公司id
-            if(in_array('company_id',$fields) && !isset($data['company_id'])){
-                $data['company_id'] = $user->company_id  ;
+                //多拼接一个所属公司id
+                if(in_array('company_id',$fields) && !isset($data['company_id'])){
+                    $data['company_id'] = $user->company_id  ;
+                }
             }
         }
 
@@ -65,23 +71,37 @@ class DatabaseLogic{
 
         $data = self::filterTableData($fields, $data);
 
-        if(auth()->guard('jwt')->check()){
+        if(!isset($data['company_id']) && empty($data['company_id'])){
+            if(auth()->guard('jwt')->check()){
 
-            $user = auth()->guard('jwt')->user();
+                $user = auth()->guard('jwt')->user();
 
-            //多拼接一个所属公司id
-            if(in_array('company_id',$fields) && !isset($data['company_id'])){
-                $data['company_id'] = $user->company_id  ;
+                //多拼接一个所属公司id
+                if(in_array('company_id',$fields) && !isset($data['company_id'])){
+                    $data['company_id'] = $user->company_id  ;
+                }
+
+                //有user_id 也存当前用户
+                if(in_array('user_id',$fields) && !isset($data['user_id'])){
+                    $data['user_id'] = $user->company_id  ;
+                }
+
             }
-
-            //有user_id 也存当前用户
-            if(in_array('user_id',$fields) && !isset($data['user_id'])){
-                $data['user_id'] = $user->company_id  ;
-            }
-
         }
 
         return $qs->update($data);
+
+    }
+
+
+    public static function commonCheckThisCompany($row,$field='company_id'){
+        $user = auth()->guard('jwt')->user();
+
+        if(!is_null($row)){
+            if($row->$field != $user->company_id){
+                throw new AdminResponseException(ErrorCode::ERROR, "非法操作");
+            }
+        }
 
     }
 

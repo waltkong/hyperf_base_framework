@@ -28,7 +28,9 @@ class MenuController extends BaseController{
     {
         $input = $this->request->all();
 
-        return $this->response->json(ResponseLogic::successData([]));
+        $result = $this->logic->dataList($input);
+
+        return $this->response->json(ResponseLogic::successData($result));
     }
 
     /**
@@ -42,6 +44,23 @@ class MenuController extends BaseController{
     {
         $input = $this->request->all();
 
+        $this->validateLogic->commonAdminValidate($input,
+            [
+                'name' => 'required|between:1,255',
+                'url' => 'required|between:1,255',
+                'is_menu' => 'required',
+                'need_auth' => 'required',
+                'is_only_super_admin' => 'required',
+                'parent_id' => 'required',
+            ],
+            [
+                'name.required' => '名称必要',
+                'url.required' => 'url必要',
+            ]
+        );
+
+        $this->logic->storeOrUpdate($input);
+
         return $this->response->json(ResponseLogic::successData([]));
     }
 
@@ -53,7 +72,8 @@ class MenuController extends BaseController{
     {
         $input = $this->request->all();
 
-        $validator = $this->validationFactory->make($input,
+
+        $this->validateLogic->commonAdminValidate($input,
             [
                 'id' => 'required|numeric',
             ],
@@ -61,12 +81,10 @@ class MenuController extends BaseController{
                 'id.required' => 'id必要',
             ]
         );
-        if ($validator->fails()){
-            $errorMessage = $validator->errors()->first();
-            return $this->response->json(ResponseLogic::errorData(ErrorCode::ERROR, $errorMessage));
-        }
 
-        return $this->response->json(ResponseLogic::successData([]));
+        $result =  $this->logic->getOne($input);
+
+        return $this->response->json(ResponseLogic::successData($result));
     }
 
     /**
@@ -80,7 +98,7 @@ class MenuController extends BaseController{
     {
         $input = $this->request->all();
 
-        $validator = $this->validationFactory->make($input,
+        $this->validateLogic->commonAdminValidate($input,
             [
                 'id' => 'required|numeric',
             ],
@@ -88,10 +106,7 @@ class MenuController extends BaseController{
                 'id.required' => 'id必要',
             ]
         );
-        if ($validator->fails()){
-            $errorMessage = $validator->errors()->first();
-            return $this->response->json(ResponseLogic::errorData(ErrorCode::ERROR, $errorMessage));
-        }
+        $this->logic->deleteOne($input);
 
         return $this->response->json(ResponseLogic::successData([]));
     }

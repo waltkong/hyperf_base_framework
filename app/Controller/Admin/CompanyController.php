@@ -46,18 +46,14 @@ class CompanyController extends BaseController
 
         $input = $this->request->all();
 
-        $validator = $this->validationFactory->make($input,
+        $this->validateLogic->commonAdminValidate($input,
             [
-                'name' => 'required|between:2,100',
+                'name' => 'required|between:1,255',
             ],
             [
                 'name.required' => '名称必要',
             ]
         );
-        if ($validator->fails()){
-            $errorMessage = $validator->errors()->first();
-            return $this->response->json(ResponseLogic::errorData(ErrorCode::ERROR, $errorMessage));
-        }
 
         $this->logic->storeOrUpdate($input);
 
@@ -73,7 +69,7 @@ class CompanyController extends BaseController
     {
         $input = $this->request->all();
 
-        $validator = $this->validationFactory->make($input,
+        $this->validateLogic->commonAdminValidate($input,
             [
                 'id' => 'required|numeric',
             ],
@@ -81,12 +77,10 @@ class CompanyController extends BaseController
                 'id.required' => 'id必要',
             ]
         );
-        if ($validator->fails()){
-            $errorMessage = $validator->errors()->first();
-            return $this->response->json(ResponseLogic::errorData(ErrorCode::ERROR, $errorMessage));
-        }
 
-        return $this->response->json(ResponseLogic::successData([]));
+        $result = $this->logic->getOne($input);
+
+        return $this->response->json(ResponseLogic::successData($result));
     }
 
     /**
@@ -100,7 +94,7 @@ class CompanyController extends BaseController
     {
         $input = $this->request->all();
 
-        $validator = $this->validationFactory->make($input,
+        $this->validateLogic->commonAdminValidate($input,
             [
                 'id' => 'required|numeric',
             ],
@@ -108,10 +102,8 @@ class CompanyController extends BaseController
                 'id.required' => 'id必要',
             ]
         );
-        if ($validator->fails()){
-            $errorMessage = $validator->errors()->first();
-            return $this->response->json(ResponseLogic::errorData(ErrorCode::ERROR, $errorMessage));
-        }
+
+        $this->logic->deleteOne($input);
 
         return $this->response->json(ResponseLogic::successData([]));
     }

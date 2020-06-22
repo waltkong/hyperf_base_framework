@@ -13,6 +13,7 @@ use App\Constants\ErrorCode;
 use Hyperf\HttpServer\Annotation\Middlewares;
 use Hyperf\HttpServer\Annotation\Middleware;
 
+
 class UserController extends BaseController
 {
 
@@ -30,7 +31,9 @@ class UserController extends BaseController
     {
         $input = $this->request->all();
 
-        return $this->response->json(ResponseLogic::successData([]));
+        $result = $this->logic->dataList($input);
+
+        return $this->response->json(ResponseLogic::successData($result));
     }
 
     /**
@@ -43,6 +46,23 @@ class UserController extends BaseController
     public function storeOrUpdate()
     {
         $input = $this->request->all();
+
+        $this->validateLogic->commonAdminValidate($input,
+            [
+                'company_id' => 'required|numeric',
+                'nickname' => 'required|between:1,255',
+                'mobile' => 'required|between:1,255',
+                'avatar' => 'required|between:1,255',
+                'admin_status' => 'required|numeric',
+            ],
+            [
+                'company_id.required' => '公司必要',
+                'nickname.required' => '昵称必要',
+                'mobile.required' => '手机必要',
+                'avatar.required' => '头像必要',
+                'admin_status.required' => '管理员状态必要',
+            ]
+        );
 
         $this->logic->storeOrUpdate($input);
 
@@ -57,6 +77,24 @@ class UserController extends BaseController
      * })
      */
     public function changePassword(){
+        $input = $this->request->all();
+
+        $this->validateLogic->commonAdminValidate($input,
+            [
+                'id' => 'required|numeric',
+                'old_password' => 'required|between:1,255',
+                'new_password' => 'required|between:1,255',
+            ],
+            [
+                'id.required' => 'id必要',
+                'old_password.required' => '旧密码必要',
+                'new_password.required' => '新密码必要',
+            ]
+        );
+
+        $this->logic->changePassword($input);
+
+        return $this->response->json(ResponseLogic::successData([]));
 
     }
 
@@ -68,7 +106,7 @@ class UserController extends BaseController
     {
         $input = $this->request->all();
 
-        $validator = $this->validationFactory->make($input,
+        $this->validateLogic->commonAdminValidate($input,
             [
                 'id' => 'required|numeric',
             ],
@@ -76,10 +114,6 @@ class UserController extends BaseController
                 'id.required' => 'id必要',
             ]
         );
-        if ($validator->fails()){
-            $errorMessage = $validator->errors()->first();
-            return $this->response->json(ResponseLogic::errorData(ErrorCode::ERROR, $errorMessage));
-        }
 
         return $this->response->json(ResponseLogic::successData([]));
     }
@@ -95,7 +129,7 @@ class UserController extends BaseController
     {
         $input = $this->request->all();
 
-        $validator = $this->validationFactory->make($input,
+        $this->validateLogic->commonAdminValidate($input,
             [
                 'id' => 'required|numeric',
             ],
@@ -103,10 +137,6 @@ class UserController extends BaseController
                 'id.required' => 'id必要',
             ]
         );
-        if ($validator->fails()){
-            $errorMessage = $validator->errors()->first();
-            return $this->response->json(ResponseLogic::errorData(ErrorCode::ERROR, $errorMessage));
-        }
 
         return $this->response->json(ResponseLogic::successData([]));
     }

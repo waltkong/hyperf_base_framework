@@ -15,11 +15,13 @@ use Hyperf\HttpServer\Annotation\Middleware;
 
 class LoginController extends BaseController {
 
+
     public function __construct( LoginLogic $loginLogic)
     {
         parent::__construct();
 
         $this->logic = $loginLogic;
+
     }
 
     /**
@@ -28,7 +30,7 @@ class LoginController extends BaseController {
     public function login(){
         $input = $this->request->all();
 
-        $validator = $this->validationFactory->make($input,
+        $this->validateLogic->commonAdminValidate($input,
             [
                 'mobile' => 'required|between:2,20',
                 'password' => 'required|between:2,20',
@@ -38,10 +40,6 @@ class LoginController extends BaseController {
                 'password.required' => '密码不正确',
             ]
         );
-        if ($validator->fails()){
-            $errorMessage = $validator->errors()->first();
-            return $this->response->json(ResponseLogic::errorData(ErrorCode::ERROR, $errorMessage));
-        }
 
         $result = $this->logic->login($input);
 
@@ -54,7 +52,7 @@ class LoginController extends BaseController {
     public function register(){
         $input = $this->request->all();
 
-        $validator = $this->validationFactory->make($input,
+        $this->validateLogic->commonAdminValidate($input,
             [
                 'nickname' => 'required|between:2,20',
                 'password' => 'required|between:2,20',
@@ -68,10 +66,6 @@ class LoginController extends BaseController {
                 'code.required' => '验证码不正确',
             ]
         );
-        if ($validator->fails()){
-            $errorMessage = $validator->errors()->first();
-            return $this->response->json(ResponseLogic::errorData(ErrorCode::ERROR, $errorMessage));
-        }
 
         $result = $this->logic->register($input);
 

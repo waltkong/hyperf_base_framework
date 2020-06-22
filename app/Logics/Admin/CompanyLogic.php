@@ -23,6 +23,7 @@ class CompanyLogic{
             if(isset($input['admin_status']) && strlen($input['admin_status']) > 0){
                 $obj = $obj->where('admin_status','=',$input['admin_status']);
             }
+            $obj = PageLogic::startAndEndTimeQuerySetFilter($obj,$input);
             return $obj;
         };
 
@@ -74,10 +75,12 @@ class CompanyLogic{
 
     public function getOne($input)
     {
-        $qs = CompanyModel::query()->where('id',$input['id']);
+        $row = CompanyModel::query()->where('id',$input['id'])->first();
+
+        DatabaseLogic::commonCheckThisCompany($row,'id');
 
         return [
-            'data' => $qs->first(),
+            'data' => $row,
         ];
     }
 
@@ -85,6 +88,8 @@ class CompanyLogic{
     {
 
         try{
+            DatabaseLogic::commonCheckThisCompany(CompanyModel::query()->where('id',$input['id'])->first(),'id');
+
             CompanyModel::query()->where('id',$input['id'])->delete();
         }catch (\Exception $e){
             throw new AdminResponseException(ErrorCode::SYSTEM_INNER_ERROR,$e->getMessage());

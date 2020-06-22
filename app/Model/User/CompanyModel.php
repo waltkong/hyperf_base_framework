@@ -24,6 +24,11 @@ class CompanyModel extends Model {
         return $this->hasMany(UserModel::class, 'company_id', 'id');
     }
 
+    const ADMIN_STATUS = [
+        'SUPER' => 1,
+        'NORMAL' => 2,
+    ];
+
 
     const FIELDS = [
         'id',

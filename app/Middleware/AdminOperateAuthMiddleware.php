@@ -75,10 +75,6 @@ class AdminOperateAuthMiddleware implements MiddlewareInterface
 
     protected function checkOperateAuth($userRow,$url){
 
-        if($userRow->admin_status == UserModel::ADMIN_STATUS['SUPER']){
-            return true;
-        }
-
         $menuRow = MenuModel::query()
             ->where('url',$url)
             ->where('company_id',$userRow->company_id)
@@ -91,6 +87,17 @@ class AdminOperateAuthMiddleware implements MiddlewareInterface
         if($menuRow->need_auth != MenuModel::NEED_AUTH['YES']){
             return true;
         }
+
+        //本公司的链接 超管用户 有权限
+        if($userRow->admin_status == UserModel::ADMIN_STATUS['SUPER'] && $menuRow->company_id == $userRow->company_id){
+            return true;
+        }
+
+        //必须为超管，但是用户不是超管，则没有权限。
+        if($menuRow->is_only_super_admin==MenuModel::IS_ONLY_SUPER_ADMIN['YES'] &&  $userRow->admin_status != UserModel::ADMIN_STATUS['SUPER']){
+            return false;
+        }
+
 
         $roleRowsByMenu = $menuRow->its_roles;
         $roleRowsByUser = $userRow->its_roles;
